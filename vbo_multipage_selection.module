@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * Implements hook_form_FORM_ID_alter() for views_form().
+ */
+function vbo_multipage_selection_form_views_form_alter(&$form, &$form_state) {
+  // I can't add this feature to all VBO forms, and I can't know which views to add
+  // it to, some I'm not going to add it to any.
+  // To use this feature, call _vbo_multipage_selection_form_alter() manually on any
+  // VBO views form you want.
+}
+
+/**
+ * Indirect form alter to enable persistent VBO selection.
+ */
+function _vbo_multipage_selection_form_alter(&$form, &$form_state) {
+  // Only the VBO form, not the settings or confirmation.
+  if (!isset($form['select'])) {
+    return;
+  }
+
+  // Add validation handlers for all action buttons, to append remembered ids to form state values.
+  foreach (element_children($form['select']) as $action) {
+    if (isset($form['select'][$action]['#validate'])) {
+      array_unshift($form['select'][$action]['#validate'], 'vbo_multipage_selection_first_validate');
+      $form['select'][$action]['#attributes']['class'][] = 'vbo-action-button';
+    }
+  }
+
+  // Add form class and JS.
+  $form['#attributes']['class'][] = 'vbo-multipage-selection';
+  $form['#attached']['js'][] = drupal_get_path('module', 'vbo_multipage_selection') . '/vbo_multipage_selection.js';
+  $form['#attached']['css'][] = drupal_get_path('module', 'vbo_multipage_selection') . '/vbo_multipage_selection.css';
+
+  // Add hidden element to remember ids.
+  $form['vbo_multipage_selection_ids'] = array(
+    '#type' => 'hidden',
+    '#title' => t('Remembered ids'),
+    '#default_value' => '',
+    '#weight' => 500,
+    '#attributes' => array('id' => 'vbo-multipage-selection-ids'),
+  );
+
+  // Add summary text next to the submit button(s).
+  $form['select']['vbo_multipage_selection'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'class' => array('vbo-multipage-selection-summary'),
+      'data-singular' => t('1 row selected'),
+      'data-plural' => t('!num rows selected'),
+    ),
+    '#weight' => 200,
+    'content' => array('#markup' => 'SELECTION SUMMARY HERE'),
+  );
+}
+
+/**
+ * Validation handler for VBO forms with persistent selection.
+ *
+ * @see _vbo_multipage_selection_form_alter()
+ */
+function vbo_multipage_selection_first_validate($form, &$form_state) {
+  $vbo = _views_bulk_operations_get_field($form_state['build_info']['args'][0]);
+  $field_name = $vbo->options['id'];
+
+  $values = &$form_state['values'];
+  $remembered_ids = array_filter(explode(',', $values['vbo_multipage_selection_ids']));
+  foreach ($remembered_ids as $id) {
+    if (!in_array($id, $values['views_bulk_operations'])) {
+      $values['views_bulk_operations'][] = $id;
+    }
+  }
+}

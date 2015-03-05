@@ -1,0 +1,5 @@
+name = vbo_multipage_selection
+description = vbo_multipage_selection
+core = 7.x
+
+dependencies[] = views_bulk_operations
