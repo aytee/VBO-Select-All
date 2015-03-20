@@ -14,21 +14,40 @@ function vbo_multipage_selection_form_views_form_alter(&$form, &$form_state) {
  * Indirect form alter to enable persistent VBO selection.
  */
 function _vbo_multipage_selection_form_alter(&$form, &$form_state) {
-  // Only the VBO form, not the settings or confirmation.
+  // Not the VBO form (step 1).
   if (!isset($form['select'])) {
+    // Step 3: confirm.
+    if (isset($form['confirm'], $form['actions']['submit'])) {
+      $form['actions']['submit']['#submit'][] = 'vbo_multipage_selection_last_submit';
+      return;
+    }
+
+    // Step 2: config form.
+    if (isset($form['actions']['submit'])) {
+      $form['actions']['submit']['#submit'][] = 'vbo_multipage_selection_last_submit';
+      return;
+    }
+
     return;
   }
+
+  $view = $form_state['build_info']['args'][0];
 
   // Add validation handlers for all action buttons, to append remembered ids to form state values.
   foreach (element_children($form['select']) as $action) {
     if (isset($form['select'][$action]['#validate'])) {
       array_unshift($form['select'][$action]['#validate'], 'vbo_multipage_selection_first_validate');
+      $form['select'][$action]['#submit'][] = 'vbo_multipage_selection_last_submit';
       $form['select'][$action]['#attributes']['class'][] = 'vbo-action-button';
     }
   }
 
+  $vbo_mps_id = md5(current_path() . ':' . $view->name . ':' . $view->current_display);
+  $form_state['vbo_mps_id'] = $vbo_mps_id;
+
   // Add form class and JS.
   $form['#attributes']['class'][] = 'vbo-multipage-selection';
+  $form['#attributes']['data-vbo-mps-id'] = $vbo_mps_id;
   $form['#attached']['js'][] = drupal_get_path('module', 'vbo_multipage_selection') . '/vbo_multipage_selection.js';
   $form['#attached']['css'][] = drupal_get_path('module', 'vbo_multipage_selection') . '/vbo_multipage_selection.css';
 
@@ -69,5 +88,16 @@ function vbo_multipage_selection_first_validate($form, &$form_state) {
     if (!in_array($id, $values['views_bulk_operations'])) {
       $values['views_bulk_operations'][] = $id;
     }
+  }
+}
+
+/**
+ * Submit handler for VBO forms with persistent selection.
+ */
+function vbo_multipage_selection_last_submit(&$form, &$form_state) {
+  // Set cookie for JS to forget the persistent selection, because VBO is done.
+  if (!empty($form_state['redirect']) && empty($form_state['vbo_mps_cookie_set'])) {
+    setcookie('vbomps_clean_' . $form_state['vbo_mps_id'], '1', time() * 1.1);
+    $form_state['vbo_mps_cookie_set'] = TRUE;
   }
 }
