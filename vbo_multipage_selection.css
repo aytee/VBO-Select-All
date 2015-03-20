@@ -1,3 +1,10 @@
-.vbo-multipage-selection input.vbo-table-select-all {
+form.vbo-multipage-selection input.vbo-table-select-all {
   display: none !important;
+}
+
+form.vbo-multipage-selection:not(.vbo-mps-have) .vbo-multipage-selection-wrapper {
+  opacity: 0.5;
+}
+form.vbo-multipage-selection:not(.vbo-mps-have) .vbo-multipage-selection-reset-wrapper {
+  display: none;
 }

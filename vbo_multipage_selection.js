@@ -1,5 +1,7 @@
 (function ($) {
 
+  // @todo JS events on $form.
+
   // Forget previous persistent selection(s).
   // @todo Make this work with batched VBO. Somehow JS can't delete the cookie if it was set
   // in a batch (AJAX?) response. Tested Chrome and Firefox. With batching disabled, it works
@@ -20,6 +22,7 @@
         var id = $form.data('vbo-mps-id');
         var localStorageKey = 'vbomps_' + id;
         var $summary = $form.find('.vbo-multipage-selection-summary');
+        var $reset = $form.find('.vbo-multipage-selection-reset');
         var $remembered = $form.find('#vbo-multipage-selection-ids');
         var inputs = $form.find('input.vbo-select');
 
@@ -36,6 +39,8 @@
             text = Drupal.formatString(text, {"!num": ids.length});
             $summary.html(text);
           }
+
+          $form.toggleClass('vbo-mps-have', ids.length > 0);
         }
 
         // Save and summarize.
@@ -69,6 +74,16 @@
           // Save and summarize.
           localStorage[localStorageKey] = ids.join(',');
           showSummary(ids);
+        });
+
+        // Listen to reset link click.
+        $reset.click(function(e) {
+          e.preventDefault();
+
+          // Uncheck checkboxes, delete localStorage, empty hidden input, update summary text.
+          inputs.removeAttr('checked').change();
+          delete localStorage[localStorageKey];
+          showSummary([]);
         });
 
       } // if $form

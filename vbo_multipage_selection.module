@@ -63,13 +63,29 @@ function _vbo_multipage_selection_form_alter(&$form, &$form_state) {
   // Add summary text next to the submit button(s).
   $form['select']['vbo_multipage_selection'] = array(
     '#type' => 'container',
-    '#attributes' => array(
-      'class' => array('vbo-multipage-selection-summary'),
-      'data-singular' => t('1 row selected'),
-      'data-plural' => t('!num rows selected'),
-    ),
     '#weight' => 200,
-    'content' => array('#markup' => 'SELECTION SUMMARY HERE'),
+    '#attributes' => array(
+      'class' => array('vbo-multipage-selection-wrapper'),
+    ),
+    'summary' => array(
+      '#type' => 'container',
+      '#attributes' => array(
+        'class' => array('vbo-multipage-selection-summary'),
+        'data-singular' => t('1 row selected'),
+        'data-plural' => t('!num rows selected'),
+      ),
+      'content' => array('#markup' => 'SELECTION SUMMARY HERE'),
+    ),
+    'reset' => array(
+      '#type' => 'link',
+      '#href' => current_path(),
+      '#title' => 'reset',
+      '#attributes' => array(
+        'class' => array('vbo-multipage-selection-reset'),
+      ),
+      '#prefix' => ' <span class="vbo-multipage-selection-reset-wrapper">(',
+      '#suffix' => ')</span>',
+    ),
   );
 }
 
