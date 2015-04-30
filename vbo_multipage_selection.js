@@ -28,6 +28,7 @@
 
         // Get remembered ids.
         var ids = localStorage[localStorageKey] ? localStorage[localStorageKey].split(',') : [];
+        var ignore = {};
 
         function showSummary(ids) {
           // Save into hidden input.
@@ -57,6 +58,15 @@
           var id = this.value;
           var ids = localStorage[localStorageKey] ? localStorage[localStorageKey].split(',') : [];
           var i = ids.indexOf(id);
+
+          // VBO triggers a row click double!?
+          if (ignore[id]) {
+            return;
+          }
+          ignore[id] = 1;
+          setTimeout(function() {
+            delete ignore[id];
+          }, 1);
 
           // Add to list, if it's not in there already.
           if (this.checked) {
