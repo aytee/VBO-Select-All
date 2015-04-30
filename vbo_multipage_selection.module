@@ -113,7 +113,7 @@ function vbo_multipage_selection_first_validate($form, &$form_state) {
 function vbo_multipage_selection_last_submit(&$form, &$form_state) {
   // Set cookie for JS to forget the persistent selection, because VBO is done.
   if (!empty($form_state['redirect']) && empty($form_state['vbo_mps_cookie_set'])) {
-    setcookie('vbomps_clean_' . $form_state['vbo_mps_id'], '1', time() * 1.1);
+    setcookie('vbomps_clean_' . $form_state['vbo_mps_id'], '1', time() * 1.1, base_path());
     $form_state['vbo_mps_cookie_set'] = TRUE;
   }
 }

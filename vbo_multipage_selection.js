@@ -9,7 +9,7 @@
   document.cookie.replace(/vbomps_clean_(\w+)/g, function(input, id) {
     var localStorageKey = 'vbomps_' + id;
     delete localStorage[localStorageKey];
-    document.cookie = input + '=x; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    document.cookie = input + '=x; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
     console.log('FORGOT VBO MPS FOR: ' + id);
   });
 
