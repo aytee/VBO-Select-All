@@ -3,9 +3,6 @@
   // @todo JS events on $form.
 
   // Forget previous persistent selection(s).
-  // @todo Make this work with batched VBO. Somehow JS can't delete the cookie if it was set
-  // in a batch (AJAX?) response. Tested Chrome and Firefox. With batching disabled, it works
-  // perfectly.
   document.cookie.replace(/vbomps_clean_(\w+)/g, function(input, id) {
     var localStorageKey = 'vbomps_' + id;
     delete localStorage[localStorageKey];
